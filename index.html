@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загадочный отсчёт времени</title>
+    <style>
+        /* Основные стили */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Контейнер для отсчёта */
+        #countdown {
+            text-align: center;
+            font-size: 4rem;
+            font-weight: bold;
+            padding: 20px;
+            border: 2px solid rgba(224, 224, 224, 0.1);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Рамка с анимацией */
+        #countdown::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #00ffcc, #ff00cc, #00ffcc, #ff00cc);
+            background-size: 400% 400%;
+            z-index: -1;
+            animation: glow-border 8s ease infinite;
+            opacity: 0.3;
+        }
+
+        /* Анимация для рамки */
+        @keyframes glow-border {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Анимация для текста */
+        @keyframes glow-text {
+            0% {
+                text-shadow: 0 0 5px rgba(0, 255, 204, 0.3), 0 0 10px rgba(0, 255, 204, 0.3), 0 0 15px rgba(0, 255, 204, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 10px rgba(0, 255, 204, 0.5), 0 0 20px rgba(0, 255, 204, 0.5), 0 0 30px rgba(0, 255, 204, 0.5);
+            }
+            100% {
+                text-shadow: 0 0 5px rgba(0, 255, 204, 0.3), 0 0 10px rgba(0, 255, 204, 0.3), 0 0 15px rgba(0, 255, 204, 0.3);
+            }
+        }
+
+        #countdown span {
+            display: inline-block;
+            animation: glow-text 2s infinite ease-in-out;
+        }
+
+        /* Подключение необычного шрифта */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    </style>
+</head>
+<body>
+    <div id="countdown">
+        <span id="days">00</span>:
+        <span id="hours">00</span>:
+        <span id="minutes">00</span>:
+        <span id="seconds">00</span>
+    </div>
+
+    <script>
+        // Устанавливаем целевую дату (год, месяц (0-11), день, час, минута, секунда)
+        const targetDate = new Date(2025, 3, 15, 0, 0, 0); // 1 января 2025 года
+
+        // Элементы для отображения времени
+        const daysElement = document.getElementById("days");
+        const hoursElement = document.getElementById("hours");
+        const minutesElement = document.getElementById("minutes");
+        const secondsElement = document.getElementById("seconds");
+
+        // Функция для обновления отсчёта
+        function updateCountdown() {
+            const now = new Date();
+            const timeDifference = targetDate - now;
+
+            // Если время вышло
+            if (timeDifference <= 0) {
+                clearInterval(countdownInterval);
+                daysElement.textContent = "00";
+                hoursElement.textContent = "00";
+                minutesElement.textContent = "00";
+                secondsElement.textContent = "00";
+                return;
+            }
+
+            // Рассчитываем дни, часы, минуты и секунды
+            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+            // Обновляем текст на странице
+            daysElement.textContent = String(days).padStart(2, "0");
+            hoursElement.textContent = String(hours).padStart(2, "0");
+            minutesElement.textContent = String(minutes).padStart(2, "0");
+            secondsElement.textContent = String(seconds).padStart(2, "0");
+
+            // Сохраняем текущее время в localStorage
+            localStorage.setItem("lastUpdate", now.getTime());
+        }
+
+        // Проверяем, есть ли сохранённое время в localStorage
+        const lastUpdate = localStorage.getItem("lastUpdate");
+        if (lastUpdate) {
+            const now = new Date();
+            const timeDifference = now.getTime() - Number(lastUpdate);
+            targetDate.setTime(targetDate.getTime() - timeDifference);
+        }
+
+        // Запускаем отсчёт
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
